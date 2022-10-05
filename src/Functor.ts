@@ -7,21 +7,25 @@ export interface TypeLambda {
   readonly result: unknown;
 }
 
-export interface HKT {
-  readonly typeLambda: TypeLambda;
-  readonly result: unknown;
-}
-
 export const Lambda = Symbol();
 export type Lambda = typeof Lambda;
 
 export const Map = Symbol();
 export type Map = typeof Map;
 
-export type App<F extends TypeLambda, A> = (F & { params: A })["result"];
+export type Kind<F extends { [Lambda]: TypeLambda }, A> = (F[Lambda] & {
+  params: A;
+})["result"];
 
-export interface Functor<F extends { [Lambda]: TypeLambda; _marker: unknown }> {
-  [Map]: <A, B>(f: (a: A) => B) => (fa: App<F[Lambda], A>) => App<F[Lambda], B>;
+export interface Functor<F extends { [Lambda]: TypeLambda }> {
+  [Lambda]: F[Lambda] & {
+    readonly result: F[Lambda]["result"] & {
+      // [Map]: <A, B>(f: (a: A) => B) => (fa: Kind<F, A>) => Kind<F, B>;
+      [Map]: <A>(fa: Kind<F, A>) => <B>(f: (a: A) => B) => Kind<F, B>;
+    };
+  };
+  // [Map]: <A, B>(f: (a: A) => B) => (fa: Kind<F, A>) => Kind<F, B>;
+  [Map]: <A>(fa: Kind<F, A>) => <B>(f: (a: A) => B) => Kind<F, B>;
 }
 
 type Newable = NewableFunction & (abstract new (...args: any) => any);
@@ -34,8 +38,6 @@ export const functor = <F extends Newable>(
 };
 
 export const map =
-  <A, B>(f: (a: A) => B) =>
-  <F extends { _marker: A; [Lambda]: TypeLambda } & Functor<F>>(
-    fa: App<F[Lambda], A> & F
-  ): App<F[Lambda], B> =>
-    fa[Map](f);
+  <F extends { _marker: unknown; [Lambda]: TypeLambda }, B>(f: (a: F['_marker']) => B) =>
+  (fa: F & Functor<F>) : Kind<F, B>=>
+    fa[Map](fa)(f);

@@ -6,7 +6,6 @@ interface OptionLambda extends TypeLambda {
 }
 
 export class Option<A> {
-  _marker: A = undefined as A;
   private static None: Option<never>;
 
   readonly value:
@@ -34,21 +33,26 @@ export class Option<A> {
   }
 }
 
-const none = new Option();
-const some3 = new Option(3);
-
-export interface Option<A> extends Functor<Option<A>> {
+export interface Option<A> {
+  _marker: A;
   [Lambda]: OptionLambda;
 }
 
+const none = new Option();
+const some3 = new Option(3);
+
+export interface Option<A> extends Functor<Option<A>> {}
+
 const m1 = some3[Map];
+
+m1(some3)(f => f.toLocaleString())
+
+// const f = map(some3)(x => x.toLocaleString())
 
 const test = pipe(
   some3,
-  map((x: number) => x+4)
-)
-
-some3.constructor.name;
+  map((x) => x.toLocaleString())
+);
 
 functor(Option, {
   [Map]:
@@ -60,5 +64,5 @@ functor(Option, {
     },
 });
 
-const m = map((x: number) => x + 3);
+const m = map((x: number) => x.toLocaleString() );
 m(some3);
