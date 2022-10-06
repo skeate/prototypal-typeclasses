@@ -1,12 +1,6 @@
+import { Kind, Lambda, TypeConstructor, TypeLambda } from './TypeLambda'
+
 export const Functor = Symbol()
-
-export interface TypeLambda {
-  readonly params: unknown
-  readonly result: unknown
-}
-
-export const Lambda = Symbol()
-export type Lambda = typeof Lambda
 
 export const Map = Symbol()
 export type Map = typeof Map
@@ -14,17 +8,11 @@ export type Map = typeof Map
 export const MapParam = Symbol()
 export type MapParam = typeof MapParam
 
-export type Kind<F extends { [Lambda]: TypeLambda }, A> = (F[Lambda] & {
-  params: A
-})['result']
-
 export interface Functor<F extends { [Lambda]: TypeLambda }> {
   [Map]: <A, B>(f: (a: A) => B) => (fa: Kind<F, A>) => Kind<F, B>
 }
 
-type Newable = NewableFunction & (abstract new (...args: any) => any)
-
-export const functor = <F extends Newable>(
+export const functor = <F extends TypeConstructor>(
   f: F,
   def: Functor<InstanceType<F>>,
 ) => {
