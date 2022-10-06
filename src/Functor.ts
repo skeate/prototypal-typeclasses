@@ -1,43 +1,48 @@
-import { match } from "ts-adt";
+import { match } from 'ts-adt'
 
-export const Functor = Symbol();
+export const Functor = Symbol()
 
 export interface TypeLambda {
-  readonly params: unknown;
-  readonly result: unknown;
+  readonly params: unknown
+  readonly result: unknown
 }
 
-export const Lambda = Symbol();
-export type Lambda = typeof Lambda;
+export const Lambda = Symbol()
+export type Lambda = typeof Lambda
 
-export const Map = Symbol();
-export type Map = typeof Map;
+export const Map = Symbol()
+export type Map = typeof Map
+
+export const MapParam = Symbol()
+export type MapParam = typeof MapParam
 
 export type Kind<F extends { [Lambda]: TypeLambda }, A> = (F[Lambda] & {
-  params: A;
-})["result"];
+  params: A
+})['result']
 
 export interface Functor<F extends { [Lambda]: TypeLambda }> {
-  [Lambda]: F[Lambda] & {
-    readonly result: F[Lambda]["result"] & {
-      // [Map]: <A, B>(f: (a: A) => B) => (fa: Kind<F, A>) => Kind<F, B>;
-      [Map]: <A>(fa: Kind<F, A>) => <B>(f: (a: A) => B) => Kind<F, B>;
-    };
-  };
-  // [Map]: <A, B>(f: (a: A) => B) => (fa: Kind<F, A>) => Kind<F, B>;
-  [Map]: <A>(fa: Kind<F, A>) => <B>(f: (a: A) => B) => Kind<F, B>;
+  [Map]: <A, B>(f: (a: A) => B) => (fa: Kind<F, A>) => Kind<F, B>
 }
 
-type Newable = NewableFunction & (abstract new (...args: any) => any);
+type Newable = NewableFunction & (abstract new (...args: any) => any)
 
 export const functor = <F extends Newable>(
   f: F,
-  def: Functor<InstanceType<F>>
+  def: Functor<InstanceType<F>>,
 ) => {
-  f.prototype[Functor] = def;
-};
+  f.prototype[Functor] = def
+}
 
 export const map =
-  <F extends { _marker: unknown; [Lambda]: TypeLambda }, B>(f: (a: F['_marker']) => B) =>
-  (fa: F & Functor<F>) : Kind<F, B>=>
-    fa[Map](fa)(f);
+  <A, B, F extends { [Lambda]: TypeLambda; [MapParam]: A }>(
+    f: (a: A & F[MapParam]) => B,
+  ) =>
+  (fa: F & Functor<F>): Kind<F, B> =>
+    fa[Map](f)(fa)
+
+export const amap =
+  <A, B, F extends { [Lambda]: TypeLambda; [MapParam]: A }>(
+    f: (a: A & F[MapParam]) => B,
+  ) =>
+  <F2 extends F & Functor<F2>>(fa: F2): Kind<F2, B> =>
+    fa[Map](f)(fa)
