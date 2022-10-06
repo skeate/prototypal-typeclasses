@@ -46,12 +46,24 @@ export interface Option<A> {
   [Lambda]: OptionLambda
 }
 
-const none = new Option()
+export const none = Option.none<never>()
+export const some = Option.some
+
 const some3 = new Option(3)
 
 export interface Option<A> extends Functor<Option<A>> {
   [MapParam]: A
 }
+
+functor(Option, {
+  [Map]:
+    <A, B>(f: (a: A) => B) =>
+    (fa: Option<A>) => {
+      return fa.value._type === 'some'
+        ? new Option<B>(f(fa.value.value))
+        : Option.none<B>()
+    },
+})
 
 // const f = map(some3)(x => x.toLocaleString())
 declare const expect: (x: Option<string>) => void
@@ -65,13 +77,3 @@ expect(test)
 const m = amap((x: number) => x.toLocaleString())
 const r = m(some3)
 expect(r)
-
-functor(Option, {
-  [Map]:
-    <A, B>(f: (a: A) => B) =>
-    (fa: Option<A>) => {
-      return fa.value._type === 'some'
-        ? new Option<B>(f(fa.value.value))
-        : Option.none<B>()
-    },
-})

@@ -1,5 +1,3 @@
-import { match } from 'ts-adt'
-
 export const Functor = Symbol()
 
 export interface TypeLambda {
@@ -30,15 +28,17 @@ export const functor = <F extends Newable>(
   f: F,
   def: Functor<InstanceType<F>>,
 ) => {
-  f.prototype[Functor] = def
+  f.prototype[Map] = def[Map]
 }
 
 export const map =
   <A, B, F extends { [Lambda]: TypeLambda; [MapParam]: A }>(
     f: (a: A & F[MapParam]) => B,
   ) =>
-  (fa: F & Functor<F>): Kind<F, B> =>
-    fa[Map](f)(fa)
+  (fa: F & Functor<F>): Kind<F, B> => {
+    const m = Map
+    return fa[Map](f)(fa)
+  }
 
 export const amap =
   <A, B, F extends { [Lambda]: TypeLambda; [MapParam]: A }>(
