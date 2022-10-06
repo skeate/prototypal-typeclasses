@@ -1,9 +1,5 @@
-import { functor, Functor, map, Map, amap, MapParam } from './Functor'
-import { TypeLambda, Lambda } from './TypeLambda'
-
-interface OptionLambda extends TypeLambda {
-  readonly result: Option<this['params']>
-}
+import { functor, Functor, Map, MapParam } from './Functor'
+import { TypeLambda, Lambda, HKT } from './TypeLambda'
 
 export class Option<A> {
   readonly value:
@@ -21,12 +17,18 @@ export class Option<A> {
   }
 }
 
-export interface Option<A> {
+interface OptionLambda extends TypeLambda {
+  readonly result: Option<this['params']>
+}
+
+export interface Option<A> extends HKT {
   [Lambda]: OptionLambda
 }
 
 export const none = new Option<never>()
 export const some = <A>(a: A) => new Option<A>(a)
+
+// #region Functor instance
 
 export interface Option<A> extends Functor<Option<A>> {
   [MapParam]: A
@@ -39,3 +41,5 @@ functor(Option, {
       return fa.value._type === 'some' ? new Option<B>(f(fa.value.value)) : none
     },
 })
+
+// #endregion

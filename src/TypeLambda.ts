@@ -6,7 +6,11 @@ export interface TypeLambda {
 export const Lambda = Symbol()
 export type Lambda = typeof Lambda
 
-export type Kind<F extends { [Lambda]: TypeLambda }, A> = (F[Lambda] & {
+export interface HKT {
+  [Lambda]: TypeLambda
+}
+
+export type Kind<F extends HKT, A> = (F[Lambda] & {
   params: A
 })['result']
 

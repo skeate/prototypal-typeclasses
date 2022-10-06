@@ -1,4 +1,4 @@
-import { map } from 'src/Functor'
+import { lift, map } from 'src/Functor'
 import * as O from 'src/Option'
 import { pipe } from 'src/pipe'
 import { expectTypeOf } from 'expect-type'
@@ -11,7 +11,7 @@ describe('Option', () => {
   })
 
   describe('Functor instance', () => {
-    it('exists', () => {
+    it('maps in a pipe', () => {
       expect(
         pipe(
           O.some(3),
@@ -32,15 +32,21 @@ describe('Option', () => {
           map((x) => x.toLocaleString()),
         ),
       ).toEqual(O.none)
-    })
 
-    it('typechecks', () => {
       expectTypeOf(
         pipe(
           O.some('quux'),
           map((s) => s.length),
         ),
       ).toEqualTypeOf<O.Option<number>>()
+    })
+
+    it('lifts functions outside a pipe', () => {
+      const lengthify = lift((s: string) => s.length)
+
+      expect(lengthify(O.some('foo'))).toEqual(O.some(3))
+
+      expectTypeOf(lengthify(O.some('foo'))).toEqualTypeOf<O.Option<number>>()
     })
   })
 })
