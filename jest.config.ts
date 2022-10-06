@@ -16,6 +16,9 @@ const jestConfig: JestConfigWithTsJest = {
       },
     ],
   },
+  coverageDirectory: './coverage',
+  collectCoverage: true,
+  collectCoverageFrom: ['./src/**/*.ts', '!./src/pipe.ts'],
 }
 
 export default jestConfig

@@ -64,16 +64,3 @@ functor(Option, {
         : Option.none<B>()
     },
 })
-
-// const f = map(some3)(x => x.toLocaleString())
-declare const expect: (x: Option<string>) => void
-
-const test = pipe(
-  some3,
-  map((x) => x.toLocaleString()),
-)
-expect(test)
-
-const m = amap((x: number) => x.toLocaleString())
-const r = m(some3)
-expect(r)
