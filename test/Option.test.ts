@@ -2,6 +2,7 @@ import { lift, map } from 'src/Functor'
 import * as O from 'src/Option'
 import { pipe } from 'src/pipe'
 import { expectTypeOf } from 'expect-type'
+import { equals } from 'src/Eq'
 
 describe('Option', () => {
   it('has data constructors', () => {
@@ -48,5 +49,23 @@ describe('Option', () => {
 
       expectTypeOf(lengthify(O.some('foo'))).toEqualTypeOf<O.Option<number>>()
     })
+  })
+
+  describe('Eq instance', () => {
+    const a = O.some(3)
+    const b = O.some(3)
+    equals(a)(b)
+
+    const c = O.some('3')
+    const d = O.some('3')
+    // @ts-expect-error
+    equals(c)(d)
+
+    equals(3)(3)
+    // @ts-expect-error
+    equals('3')('3')
+    equals(O.some(O.some(3)))(O.some(O.some(3)))
+    // @ts-expect-error
+    equals(O.some(O.some('3')))(O.some(O.some('3')))
   })
 })
