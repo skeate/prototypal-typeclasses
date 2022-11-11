@@ -48,19 +48,14 @@ functor(Option, {
 
 // #region Eq instance
 
-interface A_Has_Eq extends TypeLambda {
-  readonly result: this['params'] extends Option<infer A>
-    ? Option<Eq<A>>
-    : never
-}
+export interface Option<A> extends Eq<Option<Eq<A>>> {}
 
-export interface Option<A> extends Eq<Option<A>, A_Has_Eq> {}
-
-eq(Option)<A_Has_Eq>({
-  [Equals]: (a) => (b) =>
+eq(
+  Option<Eq<unknown>>,
+  (a) => (b) =>
     a.value._type === 'some'
       ? b.value._type === 'some' && equals(a.value.value)(b.value.value)
       : b.value._type === 'none',
-})
+)
 
 // #endregion
