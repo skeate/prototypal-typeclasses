@@ -67,5 +67,8 @@ describe('Option', () => {
     equals(O.some(O.some(3)))(O.some(O.some(3)))
     // @ts-expect-error
     equals(O.some(O.some('3')))(O.some(O.some('3')))
+
+    // @ts-expect-error
+    equals(O.some(O.some(3)))(O.some(O.some('3')))
   })
 })
